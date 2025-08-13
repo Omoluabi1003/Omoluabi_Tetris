@@ -2,6 +2,10 @@ const canvas = document.getElementById('tetris');
 const context = canvas.getContext('2d');
 context.scale(20, 20);
 
+const nextCanvas = document.getElementById('next');
+const nextContext = nextCanvas.getContext('2d');
+nextContext.scale(20, 20);
+
 function createMatrix(w, h) {
     const matrix = [];
     while (h--) {
@@ -100,15 +104,26 @@ function arenaSweep() {
     }
 }
 
-function drawMatrix(matrix, offset) {
+function drawMatrix(matrix, offset, ctx = context) {
     matrix.forEach((row, y) => {
         row.forEach((value, x) => {
             if (value !== 0) {
-                context.fillStyle = colors[value];
-                context.fillRect(x + offset.x, y + offset.y, 1, 1);
+                ctx.fillStyle = colors[value];
+                ctx.fillRect(x + offset.x, y + offset.y, 1, 1);
             }
         });
     });
+}
+
+function drawNext() {
+    nextContext.fillStyle = '#000';
+    nextContext.fillRect(0, 0, nextCanvas.width, nextCanvas.height);
+    const previewSize = nextCanvas.width / 20;
+    const offset = {
+        x: (previewSize - nextPiece[0].length) / 2,
+        y: (previewSize - nextPiece.length) / 2,
+    };
+    drawMatrix(nextPiece, offset, nextContext);
 }
 
 function draw() {
@@ -153,10 +168,11 @@ function playerMove(dir) {
 }
 
 function playerReset() {
-    const pieces = 'TJLOSZI';
-    player.matrix = createPiece(pieces[(pieces.length * Math.random()) | 0]);
+    player.matrix = nextPiece;
     player.pos.y = 0;
     player.pos.x = (arena[0].length / 2 | 0) - (player.matrix[0].length / 2 | 0);
+    nextPiece = createPiece(pieces[(pieces.length * Math.random()) | 0]);
+    drawNext();
     if (collide(arena, player)) {
         arena.forEach(row => row.fill(0));
         player.score = 0;
@@ -216,6 +232,22 @@ document.addEventListener('keydown', event => {
     }
 });
 
+[
+    ['btn-left', () => playerMove(-1)],
+    ['btn-right', () => playerMove(1)],
+    ['btn-down', playerDrop],
+    ['btn-rotate', () => playerRotate(1)],
+    ['btn-drop', hardDrop],
+].forEach(([id, fn]) => {
+    const btn = document.getElementById(id);
+    ['click', 'touchstart'].forEach(evt => {
+        btn.addEventListener(evt, e => {
+            e.preventDefault();
+            fn();
+        });
+    });
+});
+
 const colors = [
     null,
     '#00f0f0',
@@ -227,12 +259,16 @@ const colors = [
     '#f00000'
 ];
 
+const pieces = 'TJLOSZI';
+
 const arena = createMatrix(10, 20);
 const player = {
     pos: { x: 0, y: 0 },
     matrix: null,
     score: 0
 };
+
+let nextPiece = createPiece(pieces[(pieces.length * Math.random()) | 0]);
 
 playerReset();
 updateScore();
