@@ -76,6 +76,21 @@ body {
     cursor: pointer;
 }
 
+#btn-start {
+    background: linear-gradient(135deg, #28a745, #7fe37f);
+    color: #fff;
+}
+
+#btn-stop {
+    background: linear-gradient(135deg, #dc3545, #ff7b8a);
+    color: #fff;
+}
+
+#btn-refresh {
+    background: linear-gradient(135deg, #17a2b8, #5bc0de);
+    color: #fff;
+}
+
 #controls button.wide {
     width: 150px;
     border-radius: 30px;

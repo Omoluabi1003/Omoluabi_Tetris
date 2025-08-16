@@ -198,13 +198,16 @@ function playerRotate(dir) {
 let dropCounter = 0;
 let dropInterval = 1000;
 let lastTime = 0;
+let isPaused = false;
 
 function update(time = 0) {
     const deltaTime = time - lastTime;
     lastTime = time;
-    dropCounter += deltaTime;
-    if (dropCounter > dropInterval) {
-        playerDrop();
+    if (!isPaused) {
+        dropCounter += deltaTime;
+        if (dropCounter > dropInterval) {
+            playerDrop();
+        }
     }
     draw();
     requestAnimationFrame(update);
@@ -238,6 +241,14 @@ document.addEventListener('keydown', event => {
     ['btn-down', playerDrop],
     ['btn-rotate', () => playerRotate(1)],
     ['btn-drop', hardDrop],
+    ['btn-start', () => { isPaused = false; }],
+    ['btn-stop', () => { isPaused = true; }],
+    ['btn-refresh', () => {
+        arena.forEach(row => row.fill(0));
+        player.score = 0;
+        updateScore();
+        playerReset();
+    }],
 ].forEach(([id, fn]) => {
     const btn = document.getElementById(id);
     ['click', 'touchstart'].forEach(evt => {
